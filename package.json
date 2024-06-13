@@ -1,0 +1,20 @@
+{
+  "name": "nutswap-tg-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "compile": "tsc",
+    "start": "node ./dist/index.js"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5",
+    "telegraf": "^4.16.3"
+  },
+  "dependencies": {
+    "@ton/core": "^0.56.3",
+    "@ton/crypto": "^3.2.0",
+    "@types/node": "^20.14.2",
+    "ton-crypto": "^3.2.0"
+  }
+}
