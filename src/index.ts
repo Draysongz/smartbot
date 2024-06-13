@@ -14,7 +14,7 @@ bot.on(message("text"), (ctx) => {
 
   const resp = handleReferralId(text)
   if (!resp) return
-  if (!(resp.address && resp.id && resp.refId)) return
+  if (!(resp.address && resp.id)) return
   ctx.reply(
     "Launch swap",
     Markup.inlineKeyboard([
@@ -30,7 +30,6 @@ bot.on(message("text"), (ctx) => {
 
 function handleReferralId(text: string):
   | {
-      refId: string
       address: string
       id: string
     }
@@ -47,7 +46,9 @@ function handleReferralId(text: string):
   if (!parameter) return
   const [refId, address, id] = parameter?.split("-")
 
-  return { refId, address, id }
+  if (refId == "refId") {
+    return { address, id }
+  }
 }
 
 bot.launch()
