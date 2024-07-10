@@ -50,30 +50,59 @@ function handleReferralId(text) {
 
   // Perform actions based on the extracted parameter
   if (!parameter) return undefined;
-  const [refId, address, userId] = parameter.split("-");
+  const [refId,userId] = parameter.split("-");
 
   if (refId === "refId") {
-    return { address, userId };
+    return { userId };
   }
   return undefined;
 }
 
+// Handler for /start command
 bot.start(async (ctx) => {
   console.log("Received /start command with message:", ctx.message.text);
   
   const referralData = handleReferralId(ctx.message.text);
   if (referralData !== undefined) {
-    const { address, userId } = referralData;
-    console.log(`Referral data found: address=${address}, userId=${userId}`);
+    const { userId } = referralData;
+
+    // Check if the user has already been referred
+    const existingUser = await UserDetails.findOne({ userId, referredUsers: ctx.from.id.toString() });
+    if (existingUser) {
+      console.log(`User with userId=${userId} has already been referred.`);
+      await ctx.reply(`Welcome back ${ctx.from.username}`, {
+        reply_markup: {
+          inline_keyboard: [
+            [Markup.button.webApp("Launch", 'https://nutswap.vercel.app'),
+              { text: "💰Referral", callback_data: 'referral' }
+            ],
+            [{ text: '📲Support', url: 'https://t.me/Nutswap_Support' }]
+          ]
+        }
+      });
+      return;
+    }
+
+    // Update referral count and referredUsers array
+    await UserDetails.findOneAndUpdate(
+      { userId },
+      { $inc: { referralCount: 1 }, $addToSet: { referredUsers: ctx.from.id.toString() } },
+      { new: true, upsert: true }
+    );
+    
+    const refData = await UserDetails.findOne({ userId });
+    const refWallet = refData.walletAddress;
+    console.log(`Referral data found: address=${refWallet}, userId=${userId}`);
     await ctx.reply(
-      `Received referral with address: ${address} and userId: ${userId}`,
+      `Received referral with address: ${refWallet} and userId: ${userId}`,
       {
         reply_markup: {
           inline_keyboard: [
-            [Markup.button.webApp("Launch", `https://nutswap.vercel.app/${address ? `?refId=${address}` : ""}`),
-              {text: "💰Referral", callback_data: 'referral'}
+            [Markup.button.webApp("Launch", `https://nutswap.vercel.app/${refWallet ? `?refId=${refWallet}` : ""}`), 
+               { text: "💰Referral", callback_data: 'referral' }
             ],
-            [{text: '📲Support', url: 'https://t.me/Nutswap_Support'}]
+           
+            [{ text: '📲Support', url: 'https://t.me/Nutswap_Support' }]
           ]
         }
       }
@@ -87,7 +116,7 @@ bot.start(async (ctx) => {
             [Markup.button.webApp("Launch", 'https://nutswap.vercel.app'),
               { text: "💰Referral", callback_data: 'referral' }
             ],
-            [{text: '📲Support', url: 'https://t.me/Nutswap_Support'}]
+            [{ text: '📲Support', url: 'https://t.me/Nutswap_Support' }]
           ]
         }
       }
@@ -141,6 +170,11 @@ ReferralScene.enter(async (ctx) => {
 });
 
 
+bot.action('leaveref', async(ctx)=>{
+  await ctx.deleteMessage()
+  ctx.scene.leave()
+})
+
 
 GenerationScene.enter(async (ctx) => {
  await ctx.reply("Please send your connected wallet address.\nEnsure it is the initialized wallet on the DEX:");
@@ -153,7 +187,7 @@ GenerationScene.on('text', async (ctx) => {
   const userId = ctx.scene.state.userId;
 
   // Generate a referral link
-  const referralLink = `https://t.me/Nutcoin_swapbot?start=refId-${walletAddress}-${userId}`;
+  const referralLink = `https://t.me/Nutcoin_swapbot?start=refId-${userId}`;
 
   // Update the user's details with the wallet address and generated referral link
   await UserDetails.findOneAndUpdate(

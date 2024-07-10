@@ -6,7 +6,9 @@ const userDetailsSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
     referralLink: { type: String, default: "null" },
-    walletAddress: {type: String, default: "null"}
+    walletAddress: {type: String, default: "null"},
+    referralCount: {type: Number, default: 0},
+    referredUsers: [String]
 }, { timestamps: true });
 
 
