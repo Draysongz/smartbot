@@ -267,9 +267,8 @@ bot.action("generate_referral", async (ctx) => {
   ctx.scene.enter("GenerationScene")
 })
 
-bot.launch({
-    webhook: {
-        domain: 'https://nutswap-bot.onrender.com',
-        port: process.env.PORT || 3000,
-    },
+bot.launch().then(() => {
+  console.log("Bot launched successfully");
+}).catch((error) => {
+  console.error("Error launching bot:", error);
 });
