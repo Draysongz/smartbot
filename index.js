@@ -58,6 +58,15 @@ function handleReferralId(text) {
   return undefined
 }
 
+
+
+async function getReferrerWallet(userId) {
+  // Your logic to get the referrer's wallet address from the database
+  const refData = await UserDetails.findOne({ referredUsers: userId });
+  return refData ? refData.walletAddress : null;
+}
+
+
 // Handler for /start command
 bot.start(async (ctx) => {
   console.log("Received /start command with message:", ctx.message.text)
@@ -73,11 +82,18 @@ bot.start(async (ctx) => {
     })
     if (existingUser) {
       console.log(`User with userId=${userId} has already been referred.`)
+          const refWallet = await getReferrerWallet(ctx.from.id)
+    console.log(refWallet)
+
+  const url = refWallet 
+    ? `https://nutswap.vercel.app/?refId=${refWallet}` 
+    : "https://nutswap.vercel.app";
+
       await ctx.reply(`Welcome back ${ctx.from.username}`, {
         reply_markup: {
           inline_keyboard: [
             [
-              Markup.button.webApp("Launch", "https://nutswap.vercel.app"),
+              Markup.button.webApp("Launch", url),
               { text: "💰Referral", callback_data: "referral" },
             ],
             [{ text: "📲Support", url: "https://t.me/Nutswap_Support" }],
@@ -101,7 +117,7 @@ bot.start(async (ctx) => {
     const refWallet = refData.walletAddress
     console.log(`Referral data found: address=${refWallet}, userId=${userId}`)
     await ctx.reply(
-      `Received referral with address: ${refWallet} and userId: ${userId}`,
+      `Welcome  @${ctx.from.username}`,
       {
         reply_markup: {
           inline_keyboard: [
@@ -121,12 +137,22 @@ bot.start(async (ctx) => {
       }
     )
   } else {
+    const refWallet = await getReferrerWallet(ctx.from.id)
+    console.log(refWallet)
+
+  const url = refWallet 
+    ? `https://nutswap.vercel.app/?refId=${refWallet}` 
+    : "https://nutswap.vercel.app";
+
+    const welcomeMessage = refWallet ? `Welcome back @${ctx.from.username}` : `Welcome @${ctx.from.username}`
+
+    
     console.log("No referral data found.")
-    await ctx.reply("Welcome to the bot! No referral data found.", {
+    await ctx.reply(welcomeMessage, {
       reply_markup: {
         inline_keyboard: [
           [
-            Markup.button.webApp("Launch", "https://nutswap.vercel.app"),
+            Markup.button.webApp("Launch", url),
             { text: "💰Referral", callback_data: "referral" },
           ],
           [{ text: "📲Support", url: "https://t.me/Nutswap_Support" }],
@@ -250,26 +276,43 @@ bot.hears("/support", async (ctx) => {
   })
 })
 
+async function getReferrerWallet(userId) {
+  // Your logic to get the referrer's wallet address from the database
+  const refData = await UserDetails.findOne({ referredUsers: userId });
+  return refData ? refData.walletAddress : null;
+}
+
 bot.hears("/swap", async (ctx) => {
+  const userId = ctx.from.id;
+  const refWallet = await getReferrerWallet(userId);
+  console.log(refWallet)
+
+  const url = refWallet 
+    ? `https://nutswap.vercel.app/?refId=${refWallet}` 
+    : "https://nutswap.vercel.app";
+
   ctx.reply(
     "Click the button below to launch our decentralized exchange (DEX):",
     {
       reply_markup: {
         inline_keyboard: [
-          [Markup.button.webApp("Launch", "https://nutswap.vercel.app")],
+          [Markup.button.webApp("Launch", url)],
         ],
       },
     }
-  )
-})
+  );
+});
+
 
 bot.action("generate_referral", async (ctx) => {
   ctx.scene.enter("GenerationScene")
 })
 
-bot.launch({
-    webhook: {
-        domain: 'https://nutswap-bot.onrender.com',
-        port: process.env.PORT || 3000,
-    },
-});
+// bot.launch({
+//     webhook: {
+//         domain: 'https://nutswap-bot.onrender.com',
+//         port: process.env.PORT || 3000,
+//     },
+// });
+
+bot.launch()
