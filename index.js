@@ -62,7 +62,7 @@ bot.start(async (ctx) => {
 // Launch the bot
 bot.launch({
   webhook: {
-    domain: 'https://nutswap-bot.onrender.com',
+    domain: 'https://smartbot-3of7.onrender.com',
     port: process.env.PORT || 3000,
   },
 }).then(() => {
