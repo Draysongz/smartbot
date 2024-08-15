@@ -6,8 +6,7 @@ console.log("Token:", token);
 
 const bot = new Telegraf(token);
 
-// Connect to the database (assuming `connectDB` is defined elsewhere)
-connectDB();
+
 
 // Function to handle referral ID
 function handleReferralId(text) {
