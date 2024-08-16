@@ -37,7 +37,7 @@ bot.start(async (ctx) => {
   if (referralData !== undefined) {
     const { userId } = referralData;
     const url = userId !== null
-      ? `https://smartgreenapp.vercel.app/?refId=${userId}`
+      ? `https://smartgreenapp.vercel.app/?referralId=${userId}`
       : "https://smartgreenapp.vercel.app";
 
     await ctx.reply(`Welcome back ${ctx.from.username}`, {
