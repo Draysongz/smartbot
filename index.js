@@ -37,8 +37,8 @@ bot.start(async (ctx) => {
   if (referralData !== undefined) {
     const { userId } = referralData;
     const url = userId !== null
-      ? `https://smartgreenapp.vercel.app/?referralId=${userId}`
-      : "https://smartgreenapp.vercel.app";
+      ? `https://smartgreen.vercel.app/?referralId=${userId}`
+      : "https://smartgreen.vercel.app";
 
     await ctx.reply(`Welcome back ${ctx.from.username}`, {
       reply_markup: {
@@ -53,7 +53,7 @@ bot.start(async (ctx) => {
   await ctx.reply(`Welcome ${ctx.from.username}`, {
     reply_markup: {
       inline_keyboard: [
-        [Markup.button.webApp("Launch", "https://smartgreenapp.vercel.app")],
+        [Markup.button.webApp("Launch", "https://smartgreen.vercel.app")],
       ],
     },
   });
